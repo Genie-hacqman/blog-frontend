@@ -41,7 +41,8 @@ export default function LoginPage() {
       footer={
         <>
           No account?{' '}
-          <Link to="/register" className="link-slide font-semibold text-accent">
+          {/* carry the story they were trying to open through sign-up and back */}
+          <Link to="/register" state={{ from: location.state?.from }} className="link-slide font-semibold text-accent">
             Sign up
           </Link>
         </>

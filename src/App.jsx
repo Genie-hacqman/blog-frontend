@@ -44,7 +44,15 @@ export default function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
-                <Route path="/posts/:id" element={<PostPage />} />
+                {/* the front page shows previews to everyone; the full story is for signed-in readers */}
+                <Route
+                  path="/posts/:id"
+                  element={
+                    <ProtectedRoute>
+                      <PostPage />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route
                   path="/posts/new"
                   element={

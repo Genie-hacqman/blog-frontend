@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, Navigate, useNavigate } from 'react-router'
+import { Link, Navigate, useLocation, useNavigate } from 'react-router'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { registerSchema } from '../schemas/index.js'
@@ -13,6 +13,7 @@ import FormField from '../components/FormField.jsx'
 export default function RegisterPage() {
   const { isAuthenticated } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [serverError, setServerError] = useState(null)
   const {
     register,
@@ -26,7 +27,7 @@ export default function RegisterPage() {
     setServerError(null)
     try {
       await registerUser(values)
-      navigate('/login', { state: { registered: true } })
+      navigate('/login', { state: { registered: true, from: location.state?.from } })
     } catch (error) {
       setServerError(error)
     }
@@ -39,7 +40,7 @@ export default function RegisterPage() {
       footer={
         <>
           Already have an account?{' '}
-          <Link to="/login" className="link-slide font-semibold text-accent">
+          <Link to="/login" state={{ from: location.state?.from }} className="link-slide font-semibold text-accent">
             Log in
           </Link>
         </>
