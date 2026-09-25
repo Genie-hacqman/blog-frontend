@@ -1,4 +1,5 @@
 import { Link } from 'react-router'
+import { useAuth } from '../auth/useAuth.js'
 import { formatDate } from './formatDate.js'
 import { readingTime } from './readingTime.js'
 
@@ -11,7 +12,8 @@ export function Byline({ post }) {
       <span aria-hidden="true"> · </span>
       <time dateTime={post.createdAt}>{formatDate(post.createdAt)}</time>
       <span aria-hidden="true"> · </span>
-      <span className="whitespace-nowrap">{readingTime(post.content)} min read</span>
+      {/* list previews carry a server-computed readingTime; a full post only has its content */}
+      <span className="whitespace-nowrap">{post.readingTime ?? readingTime(post.content)} min read</span>
     </p>
   )
 }
@@ -20,6 +22,7 @@ export function Byline({ post }) {
 const stretchedLink = 'after:absolute after:inset-0 after:content-[""]'
 
 export function LeadStory({ post }) {
+  const { isAuthenticated } = useAuth()
   return (
     <article className="group rise relative grid gap-6 py-10 sm:py-14 lg:grid-cols-12 lg:gap-10">
       <div className="lg:col-span-8">
@@ -35,11 +38,11 @@ export function LeadStory({ post }) {
       </div>
       <div className="flex flex-col justify-end gap-5 lg:col-span-4 lg:border-l lg:border-rule lg:pl-10">
         <p className="line-clamp-6 text-lg leading-relaxed whitespace-pre-line text-ink/85">
-          {excerptOf(post.content, 320)}
+          {excerptOf(post.excerpt ?? post.content ?? '', 320)}
         </p>
         <Byline post={post} />
         <span className="kicker text-ink transition-colors group-hover:text-accent" aria-hidden="true">
-          Read the story →
+          {isAuthenticated ? 'Read the story →' : 'Sign in to read →'}
         </span>
       </div>
     </article>
@@ -47,6 +50,7 @@ export function LeadStory({ post }) {
 }
 
 export default function PostCard({ post, index }) {
+  const { isAuthenticated } = useAuth()
   return (
     <article className="group rise relative flex gap-5 py-7" style={{ '--i': index }}>
       {index != null && (
@@ -66,12 +70,12 @@ export default function PostCard({ post, index }) {
         <div className="mt-2">
           <Byline post={post} />
         </div>
-        <p className="mt-3 line-clamp-3 leading-relaxed whitespace-pre-line text-ink/80">{excerptOf(post.content, 200)}</p>
+        <p className="mt-3 line-clamp-3 leading-relaxed whitespace-pre-line text-ink/80">{excerptOf(post.excerpt ?? post.content ?? '', 200)}</p>
         <span
           aria-hidden="true"
           className="kicker mt-3 inline-block text-accent opacity-0 transition-opacity duration-150 group-hover:opacity-100"
         >
-          → Read
+          {isAuthenticated ? '→ Read' : '→ Sign in to read'}
         </span>
       </div>
     </article>
