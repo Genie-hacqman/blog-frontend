@@ -11,12 +11,13 @@ export default function NewPostPage() {
   const lastSubmission = useRef(null)
 
   const handleSubmit = (values) => {
-    const body = JSON.stringify(values)
+    const payload = { ...values, status: 'published' }
+    const body = JSON.stringify(payload)
     if (lastSubmission.current?.body !== body) {
       lastSubmission.current = { body, key: crypto.randomUUID() }
     }
     createPost.mutate(
-      { ...values, idempotencyKey: lastSubmission.current.key },
+      { ...payload, idempotencyKey: lastSubmission.current.key },
       { onSuccess: (post) => navigate(`/posts/${post.id}`) },
     )
   }
