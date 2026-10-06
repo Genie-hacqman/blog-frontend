@@ -9,6 +9,7 @@ import Button from '../components/Button.jsx'
 import ErrorMessage from '../components/ErrorMessage.jsx'
 import FormField from '../components/FormField.jsx'
 import Notice from '../components/Notice.jsx'
+import { safeRedirect } from '../lib/safeRedirect.js'
 
 export default function LoginPage() {
   const { login, isAuthenticated } = useAuth()
@@ -21,7 +22,7 @@ export default function LoginPage() {
     formState: { errors, isSubmitting },
   } = useForm({ resolver: zodResolver(loginSchema) })
 
-  const redirectTo = location.state?.from ?? '/'
+  const redirectTo = safeRedirect(location.state?.from)
   if (isAuthenticated && !isSubmitting) return <Navigate to={redirectTo} replace />
 
   const onSubmit = async (values) => {

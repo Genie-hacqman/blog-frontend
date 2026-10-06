@@ -9,6 +9,7 @@ import AuthCard from '../components/AuthCard.jsx'
 import Button from '../components/Button.jsx'
 import ErrorMessage from '../components/ErrorMessage.jsx'
 import FormField from '../components/FormField.jsx'
+import { PASSWORD_HINT } from '../lib/passwordHint.js'
 
 export default function RegisterPage() {
   const { isAuthenticated } = useAuth()
@@ -58,6 +59,7 @@ export default function RegisterPage() {
           label="Password"
           type="password"
           autoComplete="new-password"
+          hint={PASSWORD_HINT}
           error={errors.password}
           {...register('password')}
         />

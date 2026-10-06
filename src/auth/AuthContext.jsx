@@ -81,6 +81,12 @@ export function AuthProvider({ children }) {
     clearSession(endedBy)
   }, [clearSession])
 
+  // ends every session of this account, this one included
+  const logoutEverywhere = useCallback(async () => {
+    await authApi.logoutAll()
+    clearSession()
+  }, [clearSession])
+
   const updateUser = useCallback((user) => setState((s) => (s.status === 'authenticated' ? { ...s, user } : s)), [])
 
   const reloadUser = useCallback(async () => updateUser(await authApi.me()), [updateUser])
@@ -93,10 +99,11 @@ export function AuthProvider({ children }) {
       endedBy: state.endedBy ?? null,
       login,
       logout,
+      logoutEverywhere,
       updateUser,
       reloadUser,
     }),
-    [state, login, logout, updateUser, reloadUser],
+    [state, login, logout, logoutEverywhere, updateUser, reloadUser],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

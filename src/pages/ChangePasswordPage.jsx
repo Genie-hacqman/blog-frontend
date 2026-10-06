@@ -7,6 +7,7 @@ import Button from '../components/Button.jsx'
 import ErrorMessage from '../components/ErrorMessage.jsx'
 import FormField from '../components/FormField.jsx'
 import Notice from '../components/Notice.jsx'
+import { PASSWORD_HINT } from '../lib/passwordHint.js'
 
 export default function ChangePasswordPage() {
   const [serverError, setServerError] = useState(null)
@@ -41,7 +42,7 @@ export default function ChangePasswordPage() {
         )}
         <ErrorMessage error={serverError} />
         <FormField label="Current password" type="password" autoComplete="current-password" error={errors.currentPassword} {...register('currentPassword')} />
-        <FormField label="New password" type="password" autoComplete="new-password" error={errors.newPassword} {...register('newPassword')} />
+        <FormField label="New password" type="password" autoComplete="new-password" hint={PASSWORD_HINT} error={errors.newPassword} {...register('newPassword')} />
         <FormField label="Confirm new password" type="password" autoComplete="new-password" error={errors.confirmPassword} {...register('confirmPassword')} />
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Saving…' : 'Change password'}

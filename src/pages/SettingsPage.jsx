@@ -4,6 +4,7 @@ import AvatarPicker from '../components/AvatarPicker.jsx'
 import DeleteAccountSection from '../components/DeleteAccountSection.jsx'
 import NotificationPreferences from '../components/NotificationPreferences.jsx'
 import ProfileForm from '../components/ProfileForm.jsx'
+import SessionsSection from '../components/SessionsSection.jsx'
 import { buttonClass } from '../components/buttonClass.js'
 
 const Section = ({ title, children }) => (
@@ -43,6 +44,10 @@ export default function SettingsPage() {
         <Link to="/account/password" className={buttonClass('secondary')}>
           Change password
         </Link>
+      </Section>
+
+      <Section title="Where you are signed in">
+        <SessionsSection />
       </Section>
 
       <DeleteAccountSection />

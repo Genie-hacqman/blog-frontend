@@ -9,6 +9,14 @@ export const login = (credentials) =>
 
 export const logout = () => request('/api/auth/logout', { method: 'POST', headers: CSRF_HEADER })
 
+// the person's own sign-ins: [{ id, current, device, ipArea, createdAt, lastUsedAt }]
+export const listSessions = () => request('/api/auth/sessions').then((d) => d.sessions)
+
+// ends one of them; resolves to { endedCurrent }
+export const endSession = (id) => request(`/api/auth/sessions/${encodeURIComponent(id)}`, { method: 'DELETE' })
+
+export const logoutAll = () => request('/api/auth/logout-all', { method: 'POST' })
+
 export const me = () => request('/api/auth/me').then((d) => d.user)
 
 export const verifyEmail = (token) =>

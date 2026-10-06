@@ -20,3 +20,17 @@ jobs:
       - run: npm run lint
       - run: npm test
       - run: npm run build
+      # fails on a high or critical advisory (build tools included: they run in CI and on developers' machines)
+      - run: npm audit --audit-level=high
+
+  # leaked secrets, over the whole history
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

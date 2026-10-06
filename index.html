@@ -18,13 +18,8 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1;1,9..144,300..900,0..100,0..1&family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300..700;1,6..72,300..700&display=swap"
     />
-    <script>
-      // apply a saved theme before first paint so there's no flash of the wrong edition
-      try {
-        const theme = localStorage.getItem('blog.theme')
-        if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme
-      } catch {}
-    </script>
+    <!-- applies a saved theme before first paint (a file, not inline, so the Content-Security-Policy can forbid inline scripts) -->
+    <script src="/theme-init.js"></script>
     <title>Genie's Entry</title>
   </head>
   <body>

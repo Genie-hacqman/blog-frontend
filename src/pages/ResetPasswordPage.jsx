@@ -8,6 +8,7 @@ import AuthCard from '../components/AuthCard.jsx'
 import Button from '../components/Button.jsx'
 import ErrorMessage from '../components/ErrorMessage.jsx'
 import FormField from '../components/FormField.jsx'
+import { PASSWORD_HINT } from '../lib/passwordHint.js'
 
 export default function ResetPasswordPage() {
   const navigate = useNavigate()
@@ -48,7 +49,7 @@ export default function ResetPasswordPage() {
       {token ? (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
           <ErrorMessage error={serverError} />
-          <FormField label="New password" type="password" autoComplete="new-password" error={errors.password} {...register('password')} />
+          <FormField label="New password" type="password" autoComplete="new-password" hint={PASSWORD_HINT} error={errors.password} {...register('password')} />
           <FormField label="Confirm new password" type="password" autoComplete="new-password" error={errors.confirmPassword} {...register('confirmPassword')} />
           <Button type="submit" disabled={isSubmitting} className="w-full">
             {isSubmitting ? 'Saving…' : 'Reset password'}
