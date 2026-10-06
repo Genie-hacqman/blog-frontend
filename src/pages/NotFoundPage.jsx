@@ -1,7 +1,10 @@
 import { Link } from 'react-router'
 import { buttonClass } from '../components/buttonClass.js'
+import { useSeo } from '../seo/useSeo.js'
 
 export default function NotFoundPage() {
+  // the app answers 200 for any address, so the page says itself that it is not a page
+  useSeo({ title: 'Page not found', robots: 'noindex,nofollow' })
   return (
     <section className="mx-auto max-w-2xl px-4 py-20 text-center sm:px-6">
       <p className="kicker text-accent">Error · Page not found</p>

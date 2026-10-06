@@ -50,7 +50,12 @@ export default function LoginPage() {
     >
       {location.state?.registered && (
         <Notice tone="ok" label="Welcome">
-          Account created. Please log in.
+          Account created. Check your email to confirm your address, then log in.
+        </Notice>
+      )}
+      {location.state?.passwordReset && (
+        <Notice tone="ok" label="Password updated">
+          Your password was reset. Log in with the new one.
         </Notice>
       )}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
@@ -63,6 +68,11 @@ export default function LoginPage() {
           error={errors.password}
           {...register('password')}
         />
+        <p className="font-serif text-ink-soft">
+          <Link to="/forgot-password" className="link-slide font-semibold text-accent">
+            Forgot your password?
+          </Link>
+        </p>
         <Button type="submit" disabled={isSubmitting} className="w-full">
           {isSubmitting ? 'Logging in…' : 'Log in'}
         </Button>

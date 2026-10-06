@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router'
 import { useAuth } from '../auth/useAuth.js'
 import { buttonClass } from './buttonClass.js'
 import { SITE_NAME, SITE_TAGLINE } from './site.js'
+import NotificationBell from './NotificationBell.jsx'
+import SectionNav from './SectionNav.jsx'
 import ThemeToggle from './ThemeToggle.jsx'
 
 const today = new Date().toLocaleDateString(undefined, {
@@ -15,7 +17,7 @@ const today = new Date().toLocaleDateString(undefined, {
 const stripLink = 'link-slide kicker text-ink hover:text-accent'
 
 function AuthLinks({ onNavigate }) {
-  const { user, isAuthenticated, logout } = useAuth()
+  const { user, isAuthenticated, isLoading, logout } = useAuth()
   const navigate = useNavigate()
 
   const handleLogout = async () => {
@@ -24,11 +26,52 @@ function AuthLinks({ onNavigate }) {
     navigate('/')
   }
 
+  // a remembered session is being restored: show neither set of links yet
+  if (isLoading) return null
+
   return isAuthenticated ? (
     <>
-      <span className="kicker hidden text-ink-soft md:inline">Hi, {user?.userName}</span>
+      <Link to={`/u/${encodeURIComponent(user?.userName ?? '')}`} onClick={onNavigate} className={`${stripLink} md:inline`}>
+        {user?.userName}
+      </Link>
+      <NotificationBell onNavigate={onNavigate} />
       <Link to="/posts/new" onClick={onNavigate} className={`${stripLink} text-accent!`}>
         ✎ Write
+      </Link>
+      <Link to="/me/posts" onClick={onNavigate} className={stripLink}>
+        My stories
+      </Link>
+      {user?.role !== 'user' && (
+        <Link to="/me/stats" onClick={onNavigate} className={stripLink}>
+          Stats
+        </Link>
+      )}
+      <Link to="/feed" onClick={onNavigate} className={stripLink}>
+        Following
+      </Link>
+      <Link to="/me/bookmarks" onClick={onNavigate} className={stripLink}>
+        Saved
+      </Link>
+      {(user?.role === 'editor' || user?.role === 'admin') && (
+        <>
+          <Link to="/review" onClick={onNavigate} className={stripLink}>
+            Review
+          </Link>
+          <Link to="/moderation" onClick={onNavigate} className={stripLink}>
+            Moderation
+          </Link>
+          {user?.role === 'admin' && (
+            <Link to="/admin" onClick={onNavigate} className={stripLink}>
+              Admin
+            </Link>
+          )}
+          <Link to="/manage/categories" onClick={onNavigate} className={stripLink}>
+            Sections
+          </Link>
+        </>
+      )}
+      <Link to="/settings" onClick={onNavigate} className={stripLink}>
+        Settings
       </Link>
       <button type="button" onClick={handleLogout} className={stripLink}>
         Log out
@@ -114,6 +157,7 @@ export default function Navbar() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="h-1.25 border-y border-ink" />
       </div>
+      <SectionNav />
 
       {/* compact sticky bar */}
       <div

@@ -1,0 +1,41 @@
+{
+  "$comment": "Copy these rewrites into vercel.json (in this order, before the last catch-all) after replacing YOUR-API-HOST with the API's origin, e.g. api.example.com. First match wins. See README: Search engines and link previews.",
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "https://YOUR-API-HOST/api/:path*" },
+
+    { "source": "/robots.txt", "destination": "https://YOUR-API-HOST/robots.txt" },
+    { "source": "/sitemap.xml", "destination": "https://YOUR-API-HOST/sitemap.xml" },
+    { "source": "/sitemap-pages.xml", "destination": "https://YOUR-API-HOST/sitemap-pages.xml" },
+    { "source": "/sitemap-posts-:n.xml", "destination": "https://YOUR-API-HOST/sitemap-posts-:n.xml" },
+    { "source": "/feed.xml", "destination": "https://YOUR-API-HOST/feed.xml" },
+    { "source": "/feed/:kind/:name", "destination": "https://YOUR-API-HOST/feed/:kind/:name" },
+
+    {
+      "source": "/",
+      "has": [{ "type": "header", "key": "user-agent", "value": ".*(Googlebot|Google-InspectionTool|bingbot|DuckDuckBot|Applebot|YandexBot|Baiduspider|Slackbot|facebookexternalhit|Facebot|Twitterbot|LinkedInBot|WhatsApp|Discordbot|TelegramBot|Pinterest|redditbot|Mastodon|Embedly).*" }],
+      "destination": "https://YOUR-API-HOST/api/seo/home"
+    },
+    {
+      "source": "/blog/:slug",
+      "has": [{ "type": "header", "key": "user-agent", "value": ".*(Googlebot|Google-InspectionTool|bingbot|DuckDuckBot|Applebot|YandexBot|Baiduspider|Slackbot|facebookexternalhit|Facebot|Twitterbot|LinkedInBot|WhatsApp|Discordbot|TelegramBot|Pinterest|redditbot|Mastodon|Embedly).*" }],
+      "destination": "https://YOUR-API-HOST/api/seo/blog/:slug"
+    },
+    {
+      "source": "/u/:username",
+      "has": [{ "type": "header", "key": "user-agent", "value": ".*(Googlebot|Google-InspectionTool|bingbot|DuckDuckBot|Applebot|YandexBot|Baiduspider|Slackbot|facebookexternalhit|Facebot|Twitterbot|LinkedInBot|WhatsApp|Discordbot|TelegramBot|Pinterest|redditbot|Mastodon|Embedly).*" }],
+      "destination": "https://YOUR-API-HOST/api/seo/u/:username"
+    },
+    {
+      "source": "/category/:slug",
+      "has": [{ "type": "header", "key": "user-agent", "value": ".*(Googlebot|Google-InspectionTool|bingbot|DuckDuckBot|Applebot|YandexBot|Baiduspider|Slackbot|facebookexternalhit|Facebot|Twitterbot|LinkedInBot|WhatsApp|Discordbot|TelegramBot|Pinterest|redditbot|Mastodon|Embedly).*" }],
+      "destination": "https://YOUR-API-HOST/api/seo/category/:slug"
+    },
+    {
+      "source": "/tag/:slug",
+      "has": [{ "type": "header", "key": "user-agent", "value": ".*(Googlebot|Google-InspectionTool|bingbot|DuckDuckBot|Applebot|YandexBot|Baiduspider|Slackbot|facebookexternalhit|Facebot|Twitterbot|LinkedInBot|WhatsApp|Discordbot|TelegramBot|Pinterest|redditbot|Mastodon|Embedly).*" }],
+      "destination": "https://YOUR-API-HOST/api/seo/tag/:slug"
+    },
+
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

@@ -1,56 +1,102 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { configureClient } from '../api/client.js'
+import { useQueryClient } from '@tanstack/react-query'
+import { configureClient, refreshSession, setAccessToken } from '../api/client.js'
 import * as authApi from '../api/auth.js'
 import { AuthContext } from './authContextObject.js'
 
-const STORAGE_KEY = 'blog.auth'
+// A non-secret hint that this browser has had a session, so signed-out visitors do not
+// call /refresh on every page load. The credentials themselves are the HttpOnly cookie
+// (invisible to scripts) and the access token (memory only).
+const SESSION_HINT = 'blog.session'
 
-const loadSession = () => {
+const hasHint = () => {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) ?? { user: null, token: null }
+    return localStorage.getItem(SESSION_HINT) === '1'
   } catch {
-    return { user: null, token: null }
+    return false
+  }
+}
+
+const setHint = (on) => {
+  try {
+    if (on) localStorage.setItem(SESSION_HINT, '1')
+    else localStorage.removeItem(SESSION_HINT)
+  } catch {
+    // storage unavailable: the session just will not be restored on reload
   }
 }
 
 export function AuthProvider({ children }) {
-  const [session, setSession] = useState(loadSession)
+  const queryClient = useQueryClient()
+  // 'loading' only while a remembered session is being restored
+  const [state, setState] = useState(() => ({ status: hasHint() ? 'loading' : 'anonymous', user: null }))
 
-  const saveSession = useCallback((next) => {
-    setSession(next)
-    if (next.token) localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
-    else localStorage.removeItem(STORAGE_KEY)
-  }, [])
-
-  const clearSession = useCallback(() => saveSession({ user: null, token: null }), [saveSession])
+  // endedBy records why a session ended on purpose ('deleted' = the account was removed), so a
+  // protected page can send the visitor somewhere sensible instead of to the login form
+  const clearSession = useCallback((endedBy = null) => {
+    setAccessToken(null)
+    setHint(false)
+    // nothing fetched for the previous user may linger in memory
+    queryClient.clear()
+    setState({ status: 'anonymous', user: null, endedBy })
+  }, [queryClient])
 
   useEffect(() => {
-    configureClient({ getToken: () => session.token, onUnauthorized: clearSession })
-  }, [session.token, clearSession])
+    configureClient({ onUnauthorized: () => clearSession() })
+  }, [clearSession])
 
-  const login = useCallback(
-    async (credentials) => {
-      const { user, token } = await authApi.login(credentials)
-      // configure immediately so requests fired before the effect runs are authenticated
-      configureClient({ getToken: () => token, onUnauthorized: clearSession })
-      saveSession({ user, token })
-      return user
-    },
-    [saveSession, clearSession],
-  )
+  // restore the session after a reload: the cookie mints a fresh access token
+  useEffect(() => {
+    if (!hasHint()) return
+    let cancelled = false
+    refreshSession()
+      .then(({ user }) => {
+        if (!cancelled) setState({ status: 'authenticated', user })
+      })
+      .catch((error) => {
+        if (cancelled) return
+        // only a rejected session forgets the hint; an unreachable server may recover on the next load
+        if (error.status === 401 || error.status === 403) setHint(false)
+        setState({ status: 'anonymous', user: null })
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
-  const logout = useCallback(async () => {
+  const login = useCallback(async (credentials) => {
+    const { user, accessToken } = await authApi.login(credentials)
+    setAccessToken(accessToken)
+    setHint(true)
+    setState({ status: 'authenticated', user, endedBy: null })
+    return user
+  }, [])
+
+  const logout = useCallback(async ({ endedBy } = {}) => {
     try {
       await authApi.logout()
     } catch {
       // the local session is cleared regardless of whether the server call succeeded
     }
-    clearSession()
+    clearSession(endedBy)
   }, [clearSession])
 
+  const updateUser = useCallback((user) => setState((s) => (s.status === 'authenticated' ? { ...s, user } : s)), [])
+
+  const reloadUser = useCallback(async () => updateUser(await authApi.me()), [updateUser])
+
   const value = useMemo(
-    () => ({ user: session.user, token: session.token, isAuthenticated: !!session.token, login, logout }),
-    [session, login, logout],
+    () => ({
+      user: state.user,
+      isAuthenticated: state.status === 'authenticated',
+      isLoading: state.status === 'loading',
+      endedBy: state.endedBy ?? null,
+      login,
+      logout,
+      updateUser,
+      reloadUser,
+    }),
+    [state, login, logout, updateUser, reloadUser],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

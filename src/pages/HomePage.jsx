@@ -1,14 +1,31 @@
-import { Link } from 'react-router'
+import { useState } from 'react'
+import { Link, useLocation } from 'react-router'
 import { usePosts } from '../hooks/usePosts.js'
 import { useAuth } from '../auth/useAuth.js'
 import PostCard, { LeadStory } from '../components/PostCard.jsx'
 import { PostListSkeleton } from '../components/Skeletons.jsx'
 import ErrorMessage from '../components/ErrorMessage.jsx'
 import { buttonClass } from '../components/buttonClass.js'
+import Notice from '../components/Notice.jsx'
+import Pager from '../components/Pager.jsx'
+import { SITE_DESCRIPTION, SITE_NAME } from '../components/site.js'
+import { useSeo } from '../seo/useSeo.js'
+import { websiteJsonLd } from '../seo/site.js'
 
 export default function HomePage() {
-  const { data: posts, isPending, error } = usePosts()
+  const [page, setPage] = useState(1)
+  const { data, isPending, error } = usePosts(page)
   const { isAuthenticated } = useAuth()
+  const location = useLocation()
+  useSeo({ title: SITE_NAME, description: SITE_DESCRIPTION, path: '/', robots: 'index,follow', jsonLd: websiteJsonLd(SITE_DESCRIPTION) })
+  // shown once, right after an account is deleted
+  const farewell = location.state?.accountDeleted && (
+    <div className="mx-auto max-w-6xl px-4 pt-6 sm:px-6">
+      <Notice tone="ok" label="Account deleted">
+        Your account has been deleted and your personal details erased.
+      </Notice>
+    </div>
+  )
 
   if (isPending) return <PostListSkeleton />
   if (error)
@@ -18,8 +35,12 @@ export default function HomePage() {
       </div>
     )
 
+  const { posts, pagination } = data
+
   if (posts.length === 0) {
     return (
+      <>
+      {farewell}
       <section className="mx-auto max-w-2xl px-4 py-24 text-center sm:px-6">
         <p className="kicker text-accent">Front page</p>
         <h1 className="mt-4 text-5xl leading-tight font-semibold tracking-[-0.02em] italic">The presses are quiet.</h1>
@@ -31,12 +52,15 @@ export default function HomePage() {
           {isAuthenticated ? 'Write the first one' : 'Log in to write one'}
         </Link>
       </section>
+      </>
     )
   }
 
   const [lead, ...rest] = posts
 
   return (
+    <>
+    {farewell}
     <div className="mx-auto max-w-6xl px-4 sm:px-6">
       <h1 className="sr-only">Latest posts</h1>
       <LeadStory post={lead} />
@@ -62,6 +86,8 @@ export default function HomePage() {
           </div>
         </section>
       )}
+      <Pager pagination={pagination} onPage={setPage} label="Front page pages" />
     </div>
+    </>
   )
 }

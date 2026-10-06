@@ -117,11 +117,108 @@
   .article-body {
     display: flow-root; /* contain the floated drop cap on short posts */
     @apply font-serif text-[1.1875rem] leading-[1.7] text-ink sm:text-xl;
-    white-space: pre-line;
     hyphens: auto;
     overflow-wrap: break-word;
   }
-  .article-body.dropcap::first-letter {
+  /* the HTML inside a post body: written by the editor, sanitized by the API and again before it is shown */
+  .article-body > * + * {
+    margin-top: 1.1em;
+  }
+  .article-body h2,
+  .article-body h3,
+  .article-body h4 {
+    @apply font-display font-semibold tracking-[-0.01em] text-ink;
+    line-height: 1.2;
+    hyphens: manual;
+  }
+  .article-body h2 {
+    font-size: 1.7em;
+    margin-top: 1.8em;
+  }
+  .article-body h3 {
+    font-size: 1.35em;
+    margin-top: 1.6em;
+  }
+  .article-body h4 {
+    font-size: 1.1em;
+    margin-top: 1.4em;
+  }
+  .article-body a {
+    @apply text-accent underline underline-offset-4;
+  }
+  .article-body strong {
+    font-weight: 700;
+  }
+  .article-body ul,
+  .article-body ol {
+    padding-left: 1.5em;
+  }
+  .article-body ul {
+    list-style: disc;
+  }
+  .article-body ol {
+    list-style: decimal;
+  }
+  .article-body li + li {
+    margin-top: 0.35em;
+  }
+  .article-body li > p {
+    margin: 0;
+  }
+  .article-body blockquote {
+    @apply border-l-2 border-accent text-ink-soft;
+    padding-left: 1.1em;
+    font-style: italic;
+  }
+  .article-body hr {
+    @apply border-rule;
+    margin: 2em auto;
+    width: 30%;
+  }
+  .article-body :not(pre) > code {
+    @apply bg-paper-2 px-1.5 py-0.5 text-[0.85em];
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  .article-body pre {
+    @apply overflow-x-auto border border-rule bg-paper-2 p-4 text-[0.85rem] leading-relaxed;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    hyphens: none;
+    white-space: pre;
+  }
+  .article-body img {
+    @apply mx-auto block h-auto max-w-full;
+  }
+  /* syntax colours (class names come from the highlighter) */
+  .article-body .hljs-comment,
+  .article-body .hljs-quote {
+    @apply text-ink-soft;
+    font-style: italic;
+  }
+  .article-body .hljs-keyword,
+  .article-body .hljs-selector-tag,
+  .article-body .hljs-literal,
+  .article-body .hljs-section,
+  .article-body .hljs-doctag,
+  .article-body .hljs-meta .hljs-keyword {
+    @apply text-accent;
+  }
+  .article-body .hljs-string,
+  .article-body .hljs-attr,
+  .article-body .hljs-number,
+  .article-body .hljs-regexp,
+  .article-body .hljs-symbol,
+  .article-body .hljs-addition {
+    @apply text-ok;
+  }
+  .article-body .hljs-title,
+  .article-body .hljs-name,
+  .article-body .hljs-built_in,
+  .article-body .hljs-type,
+  .article-body .hljs-variable,
+  .article-body .hljs-deletion {
+    @apply text-danger;
+  }
+  .article-body.dropcap > p:first-child::first-letter {
     @apply font-display text-accent;
     float: left;
     font-size: 4.6em;
@@ -151,4 +248,22 @@
     animation: rise 420ms ease-out both;
     animation-delay: calc(var(--i, 0) * 40ms);
   }
+}
+
+/* the writing surface: the same type as the published article, in a box you can see */
+.editor-surface {
+  @apply min-h-[22rem] border border-rule bg-paper-2 px-4 py-3 focus:outline-none;
+}
+.editor-surface:focus {
+  @apply border-ink;
+}
+.editor-surface p.is-editor-empty:first-child::before {
+  @apply text-ink-soft;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+.editor-surface img.ProseMirror-selectednode {
+  @apply outline-2 outline-offset-2 outline-accent;
 }
